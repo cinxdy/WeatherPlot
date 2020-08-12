@@ -2,8 +2,14 @@ import urllib.request as r
 import json
 from datetime import datetime
 from matplotlib import pyplot as plt
-from toolForDebug import Dprint
-debugMode = True
+
+def Dprint(content):
+    if debugMode == True :
+        print(content)
+debugMode = False
+
+const_temper = "T1H"
+const_humid = "REH"
 
 def getNow():
     base_date = datetime.today().strftime("%Y%m%d")
@@ -15,15 +21,12 @@ def getNow():
         base_time = int(base_hour)
     return int(base_date), base_time
 
-
 def getItems(base_date,base_time):
     Dprint("<\nsetting request condition")
 
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService/getUltraSrtNcst"
     serviceKey = "BmBFV2vhwRaiT9wOTKaBloEKIV6%2F%2B%2BBgKaPtkWk%2B%2F4l%2FmCne4OyNdieucsL0S1SRWAsPcLWxmTjXKjy7NsALFw%3D%3D"
-
     dataType = "JSON"
-
 
     #흥해읍 기준
     nx = 102
@@ -35,27 +38,27 @@ def getItems(base_date,base_time):
 
     Dprint(">")
     Dprint("<\nopen URL")
-
     response = r.urlopen(url_full).read().decode('utf-8')
     Dprint(">")
     
     jsonArray = json.loads(response) 
     Dprint(jsonArray)
+
+    if jsonArray.get("response").get("header").get("resultCode") != '00':
+        print("Error!!!")
+        print(jsonArray.get("header"))
+        return None
+
     items =jsonArray.get("response").get("body").get("items").get("item") 
     Dprint("items>")
     Dprint(items)
-
     return items
-
-const_temper = "T1H"
-const_humid = "REH"
 
 def getValue(items,category):
     for item in items:
         if item.get("category")==category:
             return float(item.get("obsrValue"))
     return None
-
 
 def setDateTimeList(lastDate, lastTime, N):
     dateTimeList=[]
@@ -77,12 +80,13 @@ def setDateTimeList(lastDate, lastTime, N):
     Dprint(dateTimeList)
     return dateTimeList
 
-def storeIntoList(datelist):
+def storeValuesIntoList(datelist):
     temperList=[]
     humidList=[]
 
     for date in datelist:
-        print("date",date)
+        Dprint("date=")
+        Dprint(date)
         item = getItems(date[0],date[1])
 
         value = getValue(item, const_temper)
@@ -93,13 +97,11 @@ def storeIntoList(datelist):
     return temperList,humidList
 
 
-
 # Show a chart
-
 now = getNow()
 
 x = setDateTimeList(now[0],now[1],23)
-y1,y2 = storeIntoList(x)
+y1,y2 = storeValuesIntoList(x)
 
 new_x=[]
 for item in x:
