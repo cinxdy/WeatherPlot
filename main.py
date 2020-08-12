@@ -6,7 +6,7 @@ from matplotlib import pyplot as plt
 def Dprint(content):
     if debugMode == True :
         print(content)
-debugMode = False
+debugMode = True
 
 const_temper = "T1H"
 const_humid = "REH"
@@ -117,13 +117,13 @@ Dprint(y1)
 Dprint("y2")
 Dprint(y2)
 
-fig, ax2 = plt.subplots()
-ax1 = ax2.twinx()
+fig, ax1 = plt.subplots()
+ax2 = ax1.twinx()
 
 ax1.plot(new_x, y1, color='g')
-ax2.bar(new_x, y2, color='b')
+ax2.bar(new_x, y2, color='b', alpha=0.3)
 
-ax1.set_xlabel('Date')
+ax1.set_xlabel('Time')
 ax1.set_ylabel('Temperature', color='g')
 ax2.set_ylabel('Humidity', color='b')
 plt.title("Weather for two days ("+x[0][0][5:6]+"/"+x[0][0][7:8]+"~"+x[len(x)-1][0][7:8]+") near HGU")
