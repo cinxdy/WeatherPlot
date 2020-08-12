@@ -7,7 +7,7 @@ from matplotlib import pyplot as plt
 from toolForDebug import Dprint
 
 
-def getItems(base_date):
+def getItems():
     
     Dprint("<\nsetting request condition")
 
@@ -16,10 +16,8 @@ def getItems(base_date):
 
     dataType = "JSON"
 
-    #오늘 날짜 08시 기준
-    #base_date = datetime.today().strftime("%Y%m%d")
-    #base_date = "20200812"
-    base_time = "0800"
+    base_date = datetime.today().strftime("%Y%m%d")
+    base_time = datetime.today().strftime("%H")+"00"
 
     #흥해읍 기준
     nx = 102
@@ -44,4 +42,4 @@ def getItems(base_date):
     return items
 
 
-print(getItems(20200811))
+print(getItems())

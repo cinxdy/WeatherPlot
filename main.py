@@ -2,13 +2,21 @@ import urllib.request as r
 import json
 from datetime import datetime
 from matplotlib import pyplot as plt
-
+from toolForDebug import Dprint
 debugMode = True
 
+def getNow():
+    base_date = datetime.today().strftime("%Y%m%d")
+    base_hour = datetime.today().strftime("%H")
+    base_minute = datetime.today().strftime("%M")
+    if int(base_minute) < 30:
+        base_time = int(base_hour)-1
+    else:
+        base_time = int(base_hour)
+    return int(base_date), base_time
 
 
-
-def getItems(base_date):
+def getItems(base_date,base_time):
     Dprint("<\nsetting request condition")
 
     url = "http://apis.data.go.kr/1360000/VilageFcstInfoService/getUltraSrtNcst"
@@ -16,17 +24,13 @@ def getItems(base_date):
 
     dataType = "JSON"
 
-    #오늘 날짜 06시 기준
-    #base_date = datetime.today().strftime("%Y%m%d")
-    #base_date = "20200812"
-    base_time = "0600"
 
     #흥해읍 기준
     nx = 102
     ny = 96
 
     option = "?serviceKey="+serviceKey
-    request = "&dataType="+dataType+"&base_date="+str(base_date)+"&base_time="+base_time+"&nx="+str(nx)+"&ny="+str(ny)
+    request = "&dataType="+dataType+"&base_date="+base_date+"&base_time="+base_time+"&nx="+str(nx)+"&ny="+str(ny)
     url_full = url + option + request
 
     Dprint(">")
@@ -49,20 +53,29 @@ const_humid = "REH"
 def getValue(items,category):
     for item in items:
         if item.get("category")==category:
-            return item.get("obsrValue")
+            return float(item.get("obsrValue"))
     return None
 
 
-def setDateList(lastDate, N):
-    dateList=[]
-    date = lastDate    
+def setDateTimeList(lastDate, lastTime, N):
+    dateTimeList=[]
+    date = lastDate
+    time = lastTime    
     for i in range(N):
-        dateList.append(date)
-        date-=1
-    dateList.reverse()
-    Dprint("dateList")
-    Dprint(dateList)
-    return dateList
+        if time < 10:
+            time_str = "0"+ str(time) +"00"
+        else:
+            time_str = str(time) +"00"
+        dateTimeList.append([str(date),time_str])
+        time-=1
+        if time<0:
+            date -= 1
+            time = 23
+    
+    dateTimeList.reverse()
+    Dprint("dateTimeList")
+    Dprint(dateTimeList)
+    return dateTimeList
 
 def storeIntoList(datelist):
     temperList=[]
@@ -70,7 +83,7 @@ def storeIntoList(datelist):
 
     for date in datelist:
         print("date",date)
-        item = getItems(date)
+        item = getItems(date[0],date[1])
 
         value = getValue(item, const_temper)
         temperList.append(value)   
@@ -81,34 +94,36 @@ def storeIntoList(datelist):
 
 
 
-
-Dprint("test start")
-date = 20200811
-storeInfosArray = getItems(date)
-Dprint("items")
-Dprint(storeInfosArray)
-Dprint("test temper")
-Dprint(getValue(storeInfosArray,const_temper))
-Dprint("test humid")
-Dprint(getValue(storeInfosArray,const_humid))
-Dprint("test end")
-
-
-
-
 # Show a chart
-today = 20200812
-x = setDateList(today,2)
+
+now = getNow()
+
+x = setDateTimeList(now[0],now[1],23)
 y1,y2 = storeIntoList(x)
 
-fig, ax1 = plt.subplots()
+new_x=[]
+for item in x:
+    new_x.append(item[1][:2])
 
-ax2 = ax1.twinx()
-ax1.plot(x, y1, 'g-')
-ax2.plot(x, y2, 'b-')
+Dprint("x")
+Dprint(x)
+
+Dprint("new_x")
+Dprint(new_x)
+Dprint("y1")
+Dprint(y1)
+Dprint("y2")
+Dprint(y2)
+
+fig, ax2 = plt.subplots()
+ax1 = ax2.twinx()
+
+ax1.plot(new_x, y1, color='g')
+ax2.bar(new_x, y2, color='b')
 
 ax1.set_xlabel('Date')
 ax1.set_ylabel('Temperature', color='g')
 ax2.set_ylabel('Humidity', color='b')
+plt.title("Weather for two days ("+x[0][0][5:6]+"/"+x[0][0][7:8]+"~"+x[len(x)-1][0][7:8]+") near HGU")
 
 plt.show()
