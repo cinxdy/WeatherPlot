@@ -1,8 +1,8 @@
 # WeatherPlot
 It is a simple python program showing a chart for time-to-time weather information in areas near HGU(Handong Global University) for the last two days.        
-````
+
 ![plotImage](./image/plotImage.png)   
-````
+
 The very things it can show are two, the degree of temperature and humidity.
 X axle represents each time of the last two days.    
 Left y axle represents the degree of temperatures and right y axle represents the degree of humidity over last 23 hours.   
@@ -105,9 +105,9 @@ plt.title("Temperature and Humidity for two days ("+x[0][0][5:6]+"/"+x[0][0][7:8
 plt.show()
 ````
 **Result**
-````
+
 ![plotImage](./image/plotImage.png)   
-````
+
 
 # How to Execute?
 Run the main.py That's it. Very simple!   
