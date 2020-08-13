@@ -11,16 +11,6 @@ debugMode = True
 const_temper = "T1H"
 const_humid = "REH"
 
-def getNow():
-    base_date = datetime.today().strftime("%Y%m%d")
-    base_hour = datetime.today().strftime("%H")
-    base_minute = datetime.today().strftime("%M")
-    if int(base_minute) < 30:
-        base_time = int(base_hour)-1
-    else:
-        base_time = int(base_hour)
-    return int(base_date), base_time
-
 def getItems(base_date,base_time):
     Dprint("<\nsetting request condition")
 
@@ -54,11 +44,16 @@ def getItems(base_date,base_time):
     Dprint(items)
     return items
 
-def getValue(items,category):
-    for item in items:
-        if item.get("category")==category:
-            return float(item.get("obsrValue"))
-    return None
+
+def getNow():
+    base_date = datetime.today().strftime("%Y%m%d")
+    base_hour = datetime.today().strftime("%H")
+    base_minute = datetime.today().strftime("%M")
+    if int(base_minute) < 30:
+        base_time = int(base_hour)-1
+    else:
+        base_time = int(base_hour)
+    return int(base_date), base_time
 
 def setDateTimeList(lastDate, lastTime, N):
     dateTimeList=[]
@@ -80,12 +75,19 @@ def setDateTimeList(lastDate, lastTime, N):
     Dprint(dateTimeList)
     return dateTimeList
 
+def getValue(items,category):
+    for item in items:
+        if item.get("category")==category:
+            return float(item.get("obsrValue"))
+    print("error! not found")
+    return None
+    
 def storeValuesIntoList(datelist):
     temperList=[]
     humidList=[]
 
     for date in datelist:
-        Dprint("date=")
+        Dprint("date>")
         Dprint(date)
         item = getItems(date[0],date[1])
 
@@ -98,9 +100,9 @@ def storeValuesIntoList(datelist):
 
 
 # Show a chart
-now = getNow()
+date, time = getNow()
 
-x = setDateTimeList(now[0],now[1],23)
+x = setDateTimeList(date,time,23)
 y1,y2 = storeValuesIntoList(x)
 
 new_x=[]
@@ -126,6 +128,5 @@ ax2.bar(new_x, y2, color='b', alpha=0.3)
 ax1.set_xlabel('Time')
 ax1.set_ylabel('Temperature', color='g')
 ax2.set_ylabel('Humidity', color='b')
-plt.title("Weather for two days ("+x[0][0][5:6]+"/"+x[0][0][7:8]+"~"+x[len(x)-1][0][7:8]+") near HGU")
-
+plt.title("Temperature and Humidity for two days ("+x[0][0][5:6]+"/"+x[0][0][7:8]+"~"+x[len(x)-1][0][7:8]+") in the areas near HGU")
 plt.show()
