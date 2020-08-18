@@ -26,7 +26,7 @@ def getItems(base_date,base_time):
     request = "&dataType="+dataType+"&base_date="+base_date+"&base_time="+base_time+"&nx="+str(nx)+"&ny="+str(ny)
     url_full = url + option + request
 
-    Dprint(">")
+    Dprint("url>"+url_full)
     Dprint("<\nopen URL")
     response = r.urlopen(url_full).read().decode('utf-8')
     Dprint(">")
